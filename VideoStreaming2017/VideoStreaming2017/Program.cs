@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 
 namespace VideoStreaming2017
 {
@@ -6,7 +7,9 @@ namespace VideoStreaming2017
     {
         static void Main(string[] args)
         {
-            
+            var input = File.ReadAllText("Input\\videos_worth_spreading.in");
+
+            var chaches = Parser.Parse(input);
         }
     }
 }

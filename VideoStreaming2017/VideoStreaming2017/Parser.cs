@@ -13,13 +13,14 @@ namespace VideoStreaming2017
 
         public static List<Cache> Parse(string input)
         {
-            var lines = input.Split('\n');
+            var lines = input.Split("\n");
 
             var dataDescription = lines[0].Split(' ');
 
             int cacheCount = int.Parse(dataDescription[3]);
             int cacheSize = int.Parse(dataDescription[4]);
             int endpointCount = int.Parse(dataDescription[1]);
+            int requestCount = int.Parse(dataDescription[2]);
 
             var caches = new List<Cache>();
             for (int i = 0; i < cacheCount; i++)
@@ -60,24 +61,44 @@ namespace VideoStreaming2017
 
                 for (int j = 0; j < endpointCacheCount; j++)
                 {
-                    var latencyFromEndpointToCacheLine = lines[endpointCountLine + j + 1];
-                    var cacheId = latencyFromEndpointToCacheLine[0];
-                    var cacheLatency = latencyFromEndpointToCacheLine[1];
+                    var latencyFromEndpointToCacheLine = lines[endpointCountLine + j + 1].Split(' ');
+                    int cacheId = int.Parse(latencyFromEndpointToCacheLine[0]);
+                    int cacheLatency = int.Parse(latencyFromEndpointToCacheLine[1]);
 
                     endpointList[i].CacheLatencies.Add(new CacheLatency
                     {
                         Cache = caches.Single(c => c.Id == cacheId),
                         Latency = cacheLatency
                     });
+
+                    var cache = caches.Single(c => c.Id == cacheId);
+                    cache.Endpoints.Add(endpointList[i]);
+
                     //endpointList[i]
                 }
 
-                endpointCountLine += endpointCacheCount; // jump to the next endpoint
+                endpointCountLine += ++endpointCacheCount; // jump to the next endpoint
             }
 
-            // TODO: Parse requests
+            //endpointCountLine++;
 
-            throw new NotImplementedException();
+            for (int i = 0; i < requestCount; i++)
+            {
+                var request = lines[endpointCountLine + i].Split(' ');
+                var videoId = int.Parse(request[0]);
+                var endpointId = int.Parse(request[1]);
+                var requestsFromEndpointToVideoCount = int.Parse(request[2]);
+
+                var currentEndpoint = endpointList.Single(e => e.Id == endpointId);
+
+                currentEndpoint.VideoRequestCountList.Add(new VideoRequestCount()
+                {
+                    Video = videos.Single(v => v.Id == videoId),
+                    RequestCount = requestsFromEndpointToVideoCount
+                });
+            }
+
+            return caches;
         }
     }
 }
