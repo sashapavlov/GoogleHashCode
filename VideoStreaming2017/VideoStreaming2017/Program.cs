@@ -7,9 +7,11 @@ namespace VideoStreaming2017
     {
         static void Main(string[] args)
         {
-            var input = File.ReadAllText("Input\\videos_worth_spreading.in");
+            var input = File.ReadAllText("Input\\simple_input.txt");
 
             var chaches = Parser.Parse(input);
+
+            Solver.AddVideoPretenders(chaches);
         }
     }
 }
