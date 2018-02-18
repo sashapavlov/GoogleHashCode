@@ -7,11 +7,13 @@ namespace VideoStreaming2017
     {
         static void Main(string[] args)
         {
-            var input = File.ReadAllText("Input\\simple_input.txt");
+            var input = File.ReadAllText("Input\\kittens.in.txt");
 
             var chaches = Parser.Parse(input);
 
-            Solver.AddVideoPretenders(chaches);
+            var solver = new Solver(chaches);
+            solver.AddVideoPretenders();
+            solver.AddOptimalVideosToCorrespondingCaches();
         }
     }
 }
