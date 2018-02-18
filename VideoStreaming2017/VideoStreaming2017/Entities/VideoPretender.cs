@@ -1,4 +1,8 @@
-﻿namespace VideoStreaming2017.Entities
+﻿using System;
+using System.Collections.Generic;
+using System.Text;
+
+namespace VideoStreaming2017.Entities
 {
     public class VideoPretender
     {
