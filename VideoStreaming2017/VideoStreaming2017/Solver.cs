@@ -85,12 +85,19 @@ namespace VideoStreaming2017
 
                     foreach (var endpoint in intersectingEndpoints)
                     {
-                        var requestCountForVideoPretender = endpoint.VideoRequestCountList.Single(v => v.Video.Id == videoPretender.Video.Id).RequestCount;
-                        var dataCenterLatencyForVideoPretender = endpoint.DatacenterLatency;
-                        var endpointLatencyToCache = endpoint.CacheLatencies.Single(c => c.Cache.Id == cache.Id).Latency;
+                        var intersectingEnpointWithVideo =
+                            endpoint.VideoRequestCountList.SingleOrDefault((v =>
+                                v.Video.Id == videoPretender.Video.Id));
 
-                        videoPretender.TotalTimeSaved -= requestCountForVideoPretender *
-                                                         (dataCenterLatencyForVideoPretender - endpointLatencyToCache);
+                        if (intersectingEnpointWithVideo != null)
+                        {
+                            var requestCountForVideoPretender = intersectingEnpointWithVideo.RequestCount;
+                            var dataCenterLatencyForVideoPretender = endpoint.DatacenterLatency;
+                            var endpointLatencyToCache = endpoint.CacheLatencies.Single(c => c.Cache.Id == cache.Id).Latency;
+
+                            videoPretender.TotalTimeSaved -= requestCountForVideoPretender *
+                                                             (dataCenterLatencyForVideoPretender - endpointLatencyToCache);
+                        }
                     }
                 }
             }
@@ -104,7 +111,12 @@ namespace VideoStreaming2017
             {
                 foreach (var endpoint in cacheWithVideo.Endpoints)
                 {
-                    endpointsWithRequestedVideo.Add(cache.Endpoints.Single(e => e.Id == endpoint.Id));
+                    var targetEndpoint = cache.Endpoints.SingleOrDefault(e => e.Id == endpoint.Id);
+
+                    if (targetEndpoint != null)
+                    {
+                        endpointsWithRequestedVideo.Add(targetEndpoint);
+                    }
                 }
             }
 
