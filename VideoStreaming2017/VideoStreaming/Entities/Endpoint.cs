@@ -1,8 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using System.Collections.Generic;
 
-namespace VideoStreaming2017.Entities
+namespace VideoStreaming.Entities
 {
     public class Endpoint
     {

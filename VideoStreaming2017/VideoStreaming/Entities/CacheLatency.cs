@@ -1,4 +1,4 @@
-﻿namespace VideoStreaming2017.Entities
+﻿namespace VideoStreaming.Entities
 {
     public class CacheLatency
     {

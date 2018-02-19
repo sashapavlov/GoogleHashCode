@@ -1,24 +1,22 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using VideoStreaming2017.Entities;
+using VideoStreaming.Entities;
 
-namespace VideoStreaming2017
+namespace VideoStreaming
 {
     public class Parser
     {
         const int EndpointCacheCountPositionInLine = 1;
         const int EndpointDatacenterLatencyPositionInLine = 0;
 
-        public static List<Cache> Parse(string input)
+        public static List<Cache> Parse(string input, out int cacheSize)
         {
-            var lines = input.Split("\n");
+            var lines = input.Split('\n');
 
             var dataDescription = lines[0].Split(' ');
 
             int cacheCount = int.Parse(dataDescription[3]);
-            int cacheSize = int.Parse(dataDescription[4]);
+            cacheSize = int.Parse(dataDescription[4]);
             int endpointCount = int.Parse(dataDescription[1]);
             int requestCount = int.Parse(dataDescription[2]);
 

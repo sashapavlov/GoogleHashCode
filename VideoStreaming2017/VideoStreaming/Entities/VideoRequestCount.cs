@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace VideoStreaming2017.Entities
+﻿namespace VideoStreaming.Entities
 {
     public class VideoRequestCount
     {

@@ -1,8 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
-using VideoStreaming2017.Entities;
+using System.Threading;
+using System.Threading.Tasks;
+using VideoStreaming.Entities;
 
 namespace VideoStreaming2017
 {
@@ -19,15 +22,22 @@ namespace VideoStreaming2017
         {
             foreach (var cache in _caches)
             {
+                Stopwatch stopWatch = new Stopwatch();
+                stopWatch.Start();
+
+                //var enps = cache.Endpoints.OrderByDescending(e => e.VideoRequestCountList.Sum(v => v.RequestCount));
+
+                //var test = enps.Select(e => e.VideoRequestCountList.Sum(v => v.RequestCount));
+
                 foreach (var endpoint in cache.Endpoints)
                 {
-                    foreach (var videoRequestCount in endpoint.VideoRequestCountList)
+                    Parallel.ForEach(endpoint.VideoRequestCountList, videoRequestCount =>
                     {
                         var enpointToCacheLatency = endpoint.CacheLatencies.Single(c => c.Cache.Id == cache.Id).Latency;
                         var timeSaved = videoRequestCount.RequestCount * (endpoint.DatacenterLatency - enpointToCacheLatency);
                         var requestCount = videoRequestCount.RequestCount;
 
-                        var pretender = cache.VideoPretenders.SingleOrDefault(vp => vp.Video.Id == videoRequestCount.Video.Id);
+                        var pretender = cache.VideoPretenders.FirstOrDefault(vp => vp.Video.Id == videoRequestCount.Video.Id);
                         if (pretender != null)
                         {
                             pretender.TotalTimeSaved += timeSaved;
@@ -35,15 +45,22 @@ namespace VideoStreaming2017
                         }
                         else
                         {
-                            cache.VideoPretenders.Add(new VideoPretender()
+                            cache.VideoPretenders.Enqueue(new VideoPretender
                             {
                                 Video = videoRequestCount.Video,
                                 TotalTimeSaved = timeSaved,
                                 TotalRequestCount = requestCount
                             });
                         }
-                    }
+                    });
                 }
+                stopWatch.Stop();
+                TimeSpan ts = stopWatch.Elapsed;
+
+                // Format and display the TimeSpan value.
+                string elapsedTime = String.Format("{0:00}:{1:00}:{2:00}",
+                    ts.Hours, ts.Minutes, ts.Seconds);
+                Console.WriteLine("RunTime " + elapsedTime);
             }
         }
 
@@ -55,11 +72,14 @@ namespace VideoStreaming2017
 
                 foreach (var videoPretender in cache.VideoPretenders.OrderByDescending(v => v.TotalTimeSaved))
                 {
+                    if (videoPretender.TotalTimeSaved == 0) break;
+
                     if (cache.SavedVideos.Contains(videoPretender.Video)) continue;
 
                     if (cache.Size >= videoPretender.Video.Size)
                     {
                         cache.SavedVideos.Add(videoPretender.Video);
+                        cache.Size -= videoPretender.Video.Size;
                     }              
                 }
             }
@@ -67,8 +87,10 @@ namespace VideoStreaming2017
 
         private void ReorderPretenders(Cache cache)
         {
-            foreach (var videoPretender in cache.VideoPretenders)
+            foreach (var videoPretender in cache.VideoPretenders.OrderByDescending(v => v.TotalTimeSaved))
             {
+                if (videoPretender.TotalTimeSaved == 0) break;
+
                 var cachesWithVideo = GetCachesForVideo(videoPretender.Video.Id);
 
                 if (!cachesWithVideo.Any())
@@ -83,6 +105,7 @@ namespace VideoStreaming2017
                 {
                     var intersectingEndpoints = GetIntersectingEndpoints(cachesWithVideo, cache);
 
+                    /*
                     foreach (var endpoint in intersectingEndpoints)
                     {
                         var intersectingEnpointWithVideo =
@@ -99,11 +122,33 @@ namespace VideoStreaming2017
                                                              (dataCenterLatencyForVideoPretender - endpointLatencyToCache);
                         }
                     }
+                    */
+
+                    Parallel.ForEach(intersectingEndpoints, endpoint =>
+                    {
+                        var intersectingEnpointWithVideo =
+                            endpoint.VideoRequestCountList.SingleOrDefault((v =>
+                                v.Video.Id == videoPretender.Video.Id));
+
+                        if (intersectingEnpointWithVideo != null)
+                        {
+                            var requestCountForVideoPretender = intersectingEnpointWithVideo.RequestCount;
+                            var dataCenterLatencyForVideoPretender = endpoint.DatacenterLatency;
+                            var endpointLatencyToCache = endpoint.CacheLatencies.Single(c => c.Cache.Id == cache.Id).Latency;
+
+                            //videoPretender.TotalTimeSaved -= requestCountForVideoPretender *
+                            //                                 (dataCenterLatencyForVideoPretender - endpointLatencyToCache);
+
+                            Interlocked.Add(ref videoPretender.TotalTimeSaved, -(requestCountForVideoPretender *
+                                                                               (dataCenterLatencyForVideoPretender -
+                                                                                endpointLatencyToCache)));
+                        }
+                    });
                 }
             }
         }
 
-        private static List<Endpoint> GetIntersectingEndpoints(List<Cache> cachesWithVideo, Cache cache)
+        private static Endpoint[] GetIntersectingEndpoints(IEnumerable<Cache> cachesWithVideo, Cache cache)
         {
             var endpointsWithRequestedVideo = new List<Endpoint>();
 
@@ -120,12 +165,12 @@ namespace VideoStreaming2017
                 }
             }
 
-            return endpointsWithRequestedVideo.Distinct().ToList();
+            return endpointsWithRequestedVideo.Distinct().ToArray();
         }
 
-        public List<Cache> GetCachesForVideo(int videoId)
+        public Cache[] GetCachesForVideo(int videoId)
         {
-            return _caches.Where(cache => cache.SavedVideos.Any(v => v.Id == videoId)).ToList();
+            return _caches.Where(cache => cache.SavedVideos.Any(v => v.Id == videoId)).ToArray();
         }
     }
 }
