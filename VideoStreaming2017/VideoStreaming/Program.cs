@@ -1,6 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
-using VideoStreaming2017;
 
 namespace VideoStreaming
 {
@@ -8,6 +9,9 @@ namespace VideoStreaming
     {
         static void Main(string[] args)
         {
+            Stopwatch stopWatch = new Stopwatch();
+            stopWatch.Start();
+
             var input = File.ReadAllText("Input\\kittens.in.txt");
 
             var chaches = Parser.Parse(input, out var cacheSize);
@@ -47,6 +51,15 @@ namespace VideoStreaming
                     result = "";
                 }
             }
+
+            stopWatch.Stop();
+            TimeSpan ts = stopWatch.Elapsed;
+
+            // Format and display the TimeSpan value.
+            string elapsedTime = $"{ts.Hours:00}:{ts.Minutes:00}:{ts.Seconds:00}";
+            Console.WriteLine("Tite passed " + elapsedTime);
+
+            Console.ReadKey();
         }
     }
 }

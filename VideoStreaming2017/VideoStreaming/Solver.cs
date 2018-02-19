@@ -2,12 +2,11 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using VideoStreaming.Entities;
 
-namespace VideoStreaming2017
+namespace VideoStreaming
 {
     public class Solver
     {
@@ -20,6 +19,8 @@ namespace VideoStreaming2017
 
         public void AddVideoPretenders()
         {
+            Console.WriteLine("Adding video pretenders...");
+
             foreach (var cache in _caches)
             {
                 Stopwatch stopWatch = new Stopwatch();
@@ -58,14 +59,15 @@ namespace VideoStreaming2017
                 TimeSpan ts = stopWatch.Elapsed;
 
                 // Format and display the TimeSpan value.
-                string elapsedTime = String.Format("{0:00}:{1:00}:{2:00}",
-                    ts.Hours, ts.Minutes, ts.Seconds);
+                string elapsedTime = $"{ts.Hours:00}:{ts.Minutes:00}:{ts.Seconds:00}";
                 Console.WriteLine("RunTime " + elapsedTime);
             }
         }
 
         public void AddOptimalVideosToCorrespondingCaches()
         {
+            Console.WriteLine("Adding optimal videos to corresponding caches...");
+
             foreach (var cache in _caches)
             {
                 ReorderPretenders(cache);

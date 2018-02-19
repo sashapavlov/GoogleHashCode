@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using VideoStreaming.Entities;
 
@@ -11,6 +12,8 @@ namespace VideoStreaming
 
         public static List<Cache> Parse(string input, out int cacheSize)
         {
+            Console.WriteLine("Parsing...");
+
             var lines = input.Split('\n');
 
             var dataDescription = lines[0].Split(' ');
