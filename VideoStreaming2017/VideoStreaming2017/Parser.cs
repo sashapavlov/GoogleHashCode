@@ -91,11 +91,22 @@ namespace VideoStreaming2017
 
                 var currentEndpoint = endpointList.Single(e => e.Id == endpointId);
 
-                currentEndpoint.VideoRequestCountList.Add(new VideoRequestCount()
+                // more than one line in request description with same id for endpoint and video fix
+                var currentVideoRequestCount = currentEndpoint.VideoRequestCountList.SingleOrDefault(vrc => vrc.Video.Id == videoId);
+
+                if (currentVideoRequestCount == null)
                 {
-                    Video = videos.Single(v => v.Id == videoId),
-                    RequestCount = requestsFromEndpointToVideoCount
-                });
+                    currentEndpoint.VideoRequestCountList.Add(new VideoRequestCount()
+                    {
+                        Video = videos.Single(v => v.Id == videoId),
+                        RequestCount = requestsFromEndpointToVideoCount
+                    });
+                }
+                else
+                {
+                    currentEndpoint.VideoRequestCountList.Single(vrc => vrc.Video.Id == currentVideoRequestCount.Video.Id).RequestCount += requestsFromEndpointToVideoCount;
+                }
+                
             }
 
             return caches;
