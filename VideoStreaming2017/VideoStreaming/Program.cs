@@ -12,11 +12,11 @@ namespace VideoStreaming
             Stopwatch stopWatch = new Stopwatch();
             stopWatch.Start();
 
-            var input = File.ReadAllText("Input\\kittens.in.txt");
+            var input = File.ReadAllText("Input\\me_at_the_zoo.in");
 
-            var chaches = Parser.Parse(input, out var cacheSize);
+            var caches = Parser.Parse(input, out var cacheSize, out var totalVideoRequestCount);
 
-            var solver = new Solver(chaches);
+            var solver = new Solver(caches);
             solver.AddVideoPretenders();
             solver.AddOptimalVideosToCorrespondingCaches();
 
@@ -24,16 +24,16 @@ namespace VideoStreaming
 
             var usedCachesIndexes = new List<int>();
 
-            for (int i = 0; i < chaches.Count; i++)
+            for (int i = 0; i < caches.Count; i++)
             {
-                if (chaches[i].Size == cacheSize) continue;
+                if (caches[i].Size == cacheSize) continue;
 
                 usedCachesIndexes.Add(i);
 
                 usedCachesCount++;
             }
 
-            using (StreamWriter sw = File.CreateText("kittens.out.txt"))
+            using (StreamWriter sw = File.CreateText("simple-input.txt"))
             {
                 sw.WriteLine(usedCachesCount);
 
@@ -42,7 +42,7 @@ namespace VideoStreaming
                 {
                     result += usedCachesIndex + " ";
 
-                    foreach (var video in chaches[usedCachesIndex].SavedVideos)
+                    foreach (var video in caches[usedCachesIndex].SavedVideos)
                     {
                         result += video.Id + " ";
                     }
@@ -57,7 +57,11 @@ namespace VideoStreaming
 
             // Format and display the TimeSpan value.
             string elapsedTime = $"{ts.Hours:00}:{ts.Minutes:00}:{ts.Seconds:00}";
-            Console.WriteLine("Tite passed " + elapsedTime);
+            Console.WriteLine("Time passed " + elapsedTime);
+
+            var score = ScoreCounter.CountScore(solver.TotalTimeSavedForAllRequests, totalVideoRequestCount);
+
+            Console.WriteLine("Score is: " + score);
 
             Console.ReadKey();
         }

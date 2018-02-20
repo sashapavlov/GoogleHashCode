@@ -11,6 +11,8 @@ namespace VideoStreaming
     public class Solver
     {
         private readonly List<Cache> _caches;
+        public int TotalTimeSavedForAllRequests { get { return totalTimeSavedForAllRequests; } }
+        private int totalTimeSavedForAllRequests;
 
         public Solver(List<Cache> caches)
         {
@@ -82,6 +84,7 @@ namespace VideoStreaming
                     {
                         cache.SavedVideos.Add(videoPretender.Video);
                         cache.Size -= videoPretender.Video.Size;
+                        totalTimeSavedForAllRequests += videoPretender.TotalTimeSaved;
                     }              
                 }
             }
@@ -101,6 +104,7 @@ namespace VideoStreaming
                     {
                         cache.SavedVideos.Add(videoPretender.Video);
                         cache.Size -= videoPretender.Video.Size;
+                        totalTimeSavedForAllRequests += videoPretender.TotalTimeSaved;
                     }
                 }
                 else

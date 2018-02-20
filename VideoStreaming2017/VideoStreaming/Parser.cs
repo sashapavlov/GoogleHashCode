@@ -10,9 +10,12 @@ namespace VideoStreaming
         const int EndpointCacheCountPositionInLine = 1;
         const int EndpointDatacenterLatencyPositionInLine = 0;
 
-        public static List<Cache> Parse(string input, out int cacheSize)
+        public static List<Cache> Parse(string input, out int cacheSize, out int totalVideoRequestCount)
         {
             Console.WriteLine("Parsing...");
+
+            // string[] stringSeparators = new string[] { "\r\n" };
+            // string[] lines = input.Split(stringSeparators, StringSplitOptions.None);
 
             var lines = input.Split('\n');
 
@@ -83,12 +86,16 @@ namespace VideoStreaming
 
             //endpointCountLine++;
 
+            totalVideoRequestCount = 0;
+
             for (int i = 0; i < requestCount; i++)
             {
                 var request = lines[endpointCountLine + i].Split(' ');
                 var videoId = int.Parse(request[0]);
                 var endpointId = int.Parse(request[1]);
                 var requestsFromEndpointToVideoCount = int.Parse(request[2]);
+
+                totalVideoRequestCount += requestsFromEndpointToVideoCount;
 
                 var currentEndpoint = endpointList.Single(e => e.Id == endpointId);
 
