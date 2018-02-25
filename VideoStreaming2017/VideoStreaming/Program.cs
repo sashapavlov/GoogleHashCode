@@ -33,7 +33,7 @@ namespace VideoStreaming
                 usedCachesCount++;
             }
 
-            using (StreamWriter sw = File.CreateText("kittens.in.txt"))
+            using (StreamWriter sw = File.CreateText("kittens.out.txt"))
             {
                 sw.WriteLine(usedCachesCount);
 

@@ -111,7 +111,6 @@ namespace VideoStreaming
                 {
                     var intersectingEndpoints = GetIntersectingEndpoints(cachesWithVideo, cache);
 
-                    /*
                     foreach (var endpoint in intersectingEndpoints)
                     {
                         var intersectingEnpointWithVideo =
@@ -128,28 +127,6 @@ namespace VideoStreaming
                                                              (dataCenterLatencyForVideoPretender - endpointLatencyToCache);
                         }
                     }
-                    */
-
-                    Parallel.ForEach(intersectingEndpoints, endpoint =>
-                    {
-                        var intersectingEnpointWithVideo =
-                            endpoint.VideoRequestCountList.SingleOrDefault((v =>
-                                v.Video.Id == videoPretender.Video.Id));
-
-                        if (intersectingEnpointWithVideo != null)
-                        {
-                            var requestCountForVideoPretender = intersectingEnpointWithVideo.RequestCount;
-                            var dataCenterLatencyForVideoPretender = endpoint.DatacenterLatency;
-                            var endpointLatencyToCache = endpoint.CacheLatencies.Single(c => c.Cache.Id == cache.Id).Latency;
-
-                            //videoPretender.TotalTimeSaved -= requestCountForVideoPretender *
-                            //                                 (dataCenterLatencyForVideoPretender - endpointLatencyToCache);
-
-                            Interlocked.Add(ref videoPretender.TotalTimeSaved, -(requestCountForVideoPretender *
-                                                                               (dataCenterLatencyForVideoPretender -
-                                                                                endpointLatencyToCache)));
-                        }
-                    });
                 }
             }
         }
