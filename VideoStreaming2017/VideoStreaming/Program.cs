@@ -12,7 +12,7 @@ namespace VideoStreaming
             Stopwatch stopWatch = new Stopwatch();
             stopWatch.Start();
 
-            var input = File.ReadAllText("Input\\me_at_the_zoo.in");
+            var input = File.ReadAllText("Input\\kittens.in.txt");
 
             var caches = Parser.Parse(input, out var cacheSize, out var totalVideoRequestCount);
 
@@ -33,7 +33,7 @@ namespace VideoStreaming
                 usedCachesCount++;
             }
 
-            using (StreamWriter sw = File.CreateText("simple-input.txt"))
+            using (StreamWriter sw = File.CreateText("kittens.in.txt"))
             {
                 sw.WriteLine(usedCachesCount);
 
