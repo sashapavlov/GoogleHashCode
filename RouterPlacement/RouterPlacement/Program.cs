@@ -12,6 +12,10 @@ namespace RouterPlacement
         {
             var dataSet = Parser.Parse("input\\charleston_road.in");
 
+            var solver = new Solver(dataSet);
+
+            solver.PlaceRouters();
+
             Console.ReadKey();
         }
     }
