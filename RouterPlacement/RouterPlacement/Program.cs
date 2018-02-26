@@ -10,6 +10,8 @@ namespace RouterPlacement
     {
         static void Main(string[] args)
         {
+            SystemUtils.Maximize();
+
             var dataSet = Parser.Parse("input\\charleston_road.in");
 
             var solver = new Solver(dataSet);
