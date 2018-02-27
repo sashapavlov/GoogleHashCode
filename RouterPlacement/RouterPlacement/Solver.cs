@@ -15,41 +15,53 @@ namespace RouterPlacement
         public int RemainigBudget { get; set; }
         public int RemainingRoutersCount { get; set; }
         public int BackboneCellsCount { get; set; }
+	    public int MaxRouterCoverage { get; set; }
+	    public int CurrentAcceptableRouterCoverage { get; set; }
 
         public Solver(DataSet dataSet)
         {
             _dataSet = dataSet;
             RemainigBudget = dataSet.Budget;
+	        MaxRouterCoverage = (int) Math.Pow(2 * _dataSet.RouterRangeRadius + 1, 2);
+	        CurrentAcceptableRouterCoverage = MaxRouterCoverage;
         }
 
         public void PlaceRouters()
         {
             DrawMatrix(_dataSet);
 
-            for (var i = 0; i < _dataSet.Matrix.GetLongLength(0); i++)
-            {
-                for (var j = 0; j < _dataSet.Matrix.GetLongLength(1); j++)
-                {
-	                if (ShouldPlaceRouter(_dataSet.Matrix[i,j]))
-	                {
-	                    var router = new Cell(i, j, CellType.Router) {IsCovered = true};
-
-
-	                    _dataSet.Matrix[i, j] = router;
-	                    RemainigBudget -= _dataSet.RouterCost;
-
-	                    Console.SetCursorPosition(j, i);
-	                    Console.Write("r");
-
-	                    //Thread.Sleep(100);
-
-                        CoverReachableCells(router);
-
-                        
-                    }
-                }
-            }
+	        while(RemainigBudget > 0)
+	        {
+		        TryPlaceRouters();
+		        CurrentAcceptableRouterCoverage--;
+	        }
         }
+
+	    public void TryPlaceRouters()
+	    {
+		    for (var i = 0; i < _dataSet.Matrix.GetLongLength(0); i++)
+		    {
+			    for (var j = 0; j < _dataSet.Matrix.GetLongLength(1); j++)
+			    {
+				    if (ShouldPlaceRouter(_dataSet.Matrix[i,j]))
+				    {
+					    if(RemainigBudget <= 0) return;
+
+					    var router = new Cell(i, j, CellType.Router) {IsCovered = true};
+
+					    _dataSet.Matrix[i, j] = router;
+					    RemainigBudget -= _dataSet.RouterCost;
+
+					    Console.SetCursorPosition(j, i);
+					    Console.Write("r");
+
+					    //Thread.Sleep(100);
+
+					    CoverReachableCells(router);
+				    }
+			    }
+		    }
+	    }
 
 	    private bool ShouldPlaceRouter(Cell cell)
 	    {
@@ -82,7 +94,7 @@ namespace RouterPlacement
 			    }
 		    }
 
-	        if (coveredCellsCount > (int) Math.Pow(2 * _dataSet.RouterRangeRadius + 1, 2) / 7)
+	        if (coveredCellsCount >= CurrentAcceptableRouterCoverage)
 	        {
 	            return true;
 	        }
