@@ -30,7 +30,9 @@ namespace RouterPlacement
         {
             DrawMatrix(_dataSet);
 
-	        while(RemainigBudget > 0)
+            CurrentAcceptableRouterCoverage = FindBestRouterCoverage();
+
+            while (RemainigBudget > 0)
 	        {
 		        PlaceRouters();
 		        CurrentAcceptableRouterCoverage--;
@@ -43,7 +45,7 @@ namespace RouterPlacement
 		    {
 			    for (var j = 0; j < _dataSet.Matrix.GetLongLength(1); j++)
 			    {
-				    if (ShouldPlaceRouter(_dataSet.Matrix[i,j]))
+				    if (ShouldPlaceRouter(_dataSet.Matrix[i,j], out var _))
 				    {
 					    if(RemainigBudget <= 0) return;
 
@@ -63,9 +65,28 @@ namespace RouterPlacement
 		    }
 	    }
 
-	    private bool ShouldPlaceRouter(Cell cell)
-	    {
-	        if (cell.Type == CellType.VoidCell || cell.Type == CellType.Wall || cell.Type == CellType.Router)
+        public int FindBestRouterCoverage()
+        {
+            var maxCoveredCellsCount = 0;
+            for (int i = 0; i < _dataSet.RowCount; i++)
+            {
+                for (int j = 0; j < _dataSet.ColumnCount; j++)
+                {
+                    ShouldPlaceRouter(_dataSet.Matrix[i,j], out int currentCoverage);
+
+                    if (currentCoverage > 0)
+                        maxCoveredCellsCount = currentCoverage;
+                }
+            }
+
+            return maxCoveredCellsCount;
+        }
+
+        private bool ShouldPlaceRouter(Cell cell, out int coveredCellsCount)
+        {
+            coveredCellsCount = 0;
+
+            if (cell.Type == CellType.VoidCell || cell.Type == CellType.Wall || cell.Type == CellType.Router)
 	            return false;
 
 		    var rowStart = cell.Row - _dataSet.RouterRangeRadius;
@@ -80,7 +101,7 @@ namespace RouterPlacement
 		    if (rowEnd > _dataSet.RowCount) rowEnd = _dataSet.RowCount;
 		    if (columnEnd > _dataSet.ColumnCount) columnEnd = _dataSet.ColumnCount;
 
-		    var coveredCellsCount = 0;
+		    coveredCellsCount = 0;
 		    for (int i = rowStart; i < rowEnd; i++)
 		    {
 			    for (int j = columnStart; j < columnEnd; j++)
