@@ -17,6 +17,7 @@ namespace RouterPlacement
         public int BackboneCellsCount { get; set; }
 	    public int MaxRouterCoverage { get; set; }
 	    public int CurrentAcceptableRouterCoverage { get; set; }
+	    public SortedList<int, Cell> Routers = new SortedList<int, Cell>();
 
         public Solver(DataSet dataSet)
         {
@@ -26,18 +27,50 @@ namespace RouterPlacement
 	        CurrentAcceptableRouterCoverage = MaxRouterCoverage;
         }
 
-        public void PlaceRouters()
+        public void Solve()
         {
             DrawMatrix(_dataSet);
 
 	        while(RemainigBudget > 0)
 	        {
-		        TryPlaceRouters();
+		        PlaceRouters();
 		        CurrentAcceptableRouterCoverage--;
 	        }
         }
 
-	    public void TryPlaceRouters()
+	    public void ConnectRouters()
+	    {
+		    for (int i = 0; i < Routers.Count-1; i++)
+		    {
+				/*
+			    var r1 = Routers[i];
+			    var r2 = Routers[i+1];
+
+			    if (r1.Row < r2.Row && r1.Column < r2.Column)
+			    {
+				    int currentRow = r1.Row;
+				    int currentColumn = r1.Column;
+
+				    while (true)
+				    {
+					    
+				    }
+
+				    for (int j = r1.Row; j != r2.Row; j++)
+				    {
+						_dataSet.Matrix[j,j] = new Cell(j,j, CellType.Backbone);
+				    }
+
+				    for (int columnIndex = 0; columnIndex < UPPER; columnIndex++)
+				    {
+					    
+				    }
+			    }
+				*/
+		    }
+	    }
+
+	    public void PlaceRouters()
 	    {
 		    for (var i = 0; i < _dataSet.Matrix.GetLongLength(0); i++)
 		    {
@@ -50,6 +83,7 @@ namespace RouterPlacement
 					    var router = new Cell(i, j, CellType.Router) {IsCovered = true};
 
 					    _dataSet.Matrix[i, j] = router;
+					    Routers.Add(i+j, router);
 					    RemainigBudget -= _dataSet.RouterCost;
 
 					    Console.SetCursorPosition(j, i);
