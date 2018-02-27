@@ -17,7 +17,6 @@ namespace RouterPlacement
         public int BackboneCellsCount { get; set; }
 	    public int MaxRouterCoverage { get; set; }
 	    public int CurrentAcceptableRouterCoverage { get; set; }
-	    public SortedList<int, Cell> Routers = new SortedList<int, Cell>();
 
         public Solver(DataSet dataSet)
         {
@@ -38,29 +37,6 @@ namespace RouterPlacement
 	        }
         }
 
-	    public void ConnectRouters()
-	    {
-		    
-	    }
-
-		// wtf
-	    public List<Cell> FindPath(Cell source, Cell destination, List<Cell> path)
-	    {
-		    if (source.Row == destination.Row && source.Column == destination.Column) return path;
-
-		    if (source.Row == _dataSet.RowCount || source.Column == _dataSet.ColumnCount) return null;
-		    if (source.Row == 0 || source.Column == 0) return null;
-
-		    //if (source.Row > destination.Row || source.Column == destination.Column) return null;
-
-		    path.Add(source);
-
-		    var r1 = FindPath(new Cell(source.Row + 1, source.Column, CellType.Backbone), destination, path);
-		    var r2 = FindPath(new Cell(source.Row - 1, source.Column, CellType.Backbone), destination, path);
-		    var r3 = FindPath(new Cell(source.Row, source.Column + 1, CellType.Backbone), destination, path);
-			var r4 = FindPath(new Cell(source.Row, source.Column - 1, CellType.Backbone), destination, path);
-	    }
-
 	    public void PlaceRouters()
 	    {
 		    for (var i = 0; i < _dataSet.Matrix.GetLongLength(0); i++)
@@ -74,7 +50,6 @@ namespace RouterPlacement
 					    var router = new Cell(i, j, CellType.Router) {IsCovered = true};
 
 					    _dataSet.Matrix[i, j] = router;
-					    Routers.Add(i+j, router);
 					    RemainigBudget -= _dataSet.RouterCost;
 
 					    Console.SetCursorPosition(j, i);

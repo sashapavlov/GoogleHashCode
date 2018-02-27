@@ -16,7 +16,7 @@ namespace RouterPlacement
 
             var solver = new Solver(dataSet);
 
-            solver.PlaceRouters();
+            solver.Solve();
 			
             Console.ReadKey();
         }
