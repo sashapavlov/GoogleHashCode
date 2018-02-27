@@ -40,34 +40,25 @@ namespace RouterPlacement
 
 	    public void ConnectRouters()
 	    {
-		    for (int i = 0; i < Routers.Count-1; i++)
-		    {
-				/*
-			    var r1 = Routers[i];
-			    var r2 = Routers[i+1];
+		    
+	    }
 
-			    if (r1.Row < r2.Row && r1.Column < r2.Column)
-			    {
-				    int currentRow = r1.Row;
-				    int currentColumn = r1.Column;
+		// wtf
+	    public List<Cell> FindPath(Cell source, Cell destination, List<Cell> path)
+	    {
+		    if (source.Row == destination.Row && source.Column == destination.Column) return path;
 
-				    while (true)
-				    {
-					    
-				    }
+		    if (source.Row == _dataSet.RowCount || source.Column == _dataSet.ColumnCount) return null;
+		    if (source.Row == 0 || source.Column == 0) return null;
 
-				    for (int j = r1.Row; j != r2.Row; j++)
-				    {
-						_dataSet.Matrix[j,j] = new Cell(j,j, CellType.Backbone);
-				    }
+		    //if (source.Row > destination.Row || source.Column == destination.Column) return null;
 
-				    for (int columnIndex = 0; columnIndex < UPPER; columnIndex++)
-				    {
-					    
-				    }
-			    }
-				*/
-		    }
+		    path.Add(source);
+
+		    var r1 = FindPath(new Cell(source.Row + 1, source.Column, CellType.Backbone), destination, path);
+		    var r2 = FindPath(new Cell(source.Row - 1, source.Column, CellType.Backbone), destination, path);
+		    var r3 = FindPath(new Cell(source.Row, source.Column + 1, CellType.Backbone), destination, path);
+			var r4 = FindPath(new Cell(source.Row, source.Column - 1, CellType.Backbone), destination, path);
 	    }
 
 	    public void PlaceRouters()
