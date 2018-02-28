@@ -5,6 +5,7 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using RouterPlacement.utils;
 
 namespace RouterPlacement
 {
@@ -17,6 +18,8 @@ namespace RouterPlacement
         public int BackboneCellsCount { get; set; }
 	    public int MaxRouterCoverage { get; set; }
 	    public int CurrentAcceptableRouterCoverage { get; set; }
+
+        public List<Cell> Routers { get; set; } = new List<Cell>();
 
         public Solver(DataSet dataSet)
         {
@@ -35,8 +38,51 @@ namespace RouterPlacement
             while (RemainigBudget > 0)
 	        {
 		        PlaceRouters();
-		        CurrentAcceptableRouterCoverage--;
+
+	            ConnectRouters();
+
+                CurrentAcceptableRouterCoverage--;
 	        }
+        }
+
+        private void ConnectRouters()
+        {
+            var graph = AddMatrixToGraph();
+
+            var func = graph.ShortestPathFunction(Routers.First());
+            var path = func(Routers[8]);
+
+            foreach (var cell in path)
+            {
+                _dataSet.Matrix[cell.Row, cell.Column] = new Cell(cell.Row, cell.Column, CellType.Backbone);
+
+                Console.SetCursorPosition(cell.Column, cell.Row);
+                Console.Write("b");
+            }
+        }
+
+        private Graph<Cell> AddMatrixToGraph()
+        {
+            var graph = new Graph<Cell>();
+
+            for (var i = 0; i < _dataSet.Matrix.GetLongLength(0); i++)
+            {
+                for (var j = 0; j < _dataSet.Matrix.GetLongLength(1); j++)
+                {
+                    graph.AddVertex(_dataSet.Matrix[i,j]);
+                
+                    if(i - 1 >= 0)
+                        graph.AddEdge(Tuple.Create(_dataSet.Matrix[i, j], _dataSet.Matrix[i - 1, j]));
+                    if(i + 1 < _dataSet.RowCount)
+                        graph.AddEdge(Tuple.Create(_dataSet.Matrix[i, j], _dataSet.Matrix[i+1, j]));
+                    if(j - 1 >= 0)
+                        graph.AddEdge(Tuple.Create(_dataSet.Matrix[i, j], _dataSet.Matrix[i, j - 1]));
+                    if (j + 1 < _dataSet.ColumnCount)
+                        graph.AddEdge(Tuple.Create(_dataSet.Matrix[i, j], _dataSet.Matrix[i, j+1]));
+                }
+            }
+
+            return graph;
         }
 
 	    public void PlaceRouters()
@@ -51,7 +97,9 @@ namespace RouterPlacement
 
 					    var router = new Cell(i, j, CellType.Router) {IsCovered = true};
 
-					    _dataSet.Matrix[i, j] = router;
+				        Routers.Add(router);
+
+                        _dataSet.Matrix[i, j] = router;
 					    RemainigBudget -= _dataSet.RouterCost;
 
 					    Console.SetCursorPosition(j, i);
@@ -210,7 +258,7 @@ namespace RouterPlacement
                             Console.Write("#");
                             break;
                         case CellType.Backbone:
-                            Console.Write("~");
+                            Console.Write("b");
                             break;
                         case CellType.Router:
                             Console.Write("r");
