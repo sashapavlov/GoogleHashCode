@@ -46,6 +46,7 @@
   <ItemGroup>
     <Compile Include="Cell.cs" />
     <Compile Include="CellType.cs" />
+    <Compile Include="utils\CellGraph.cs" />
     <Compile Include="utils\Graph.cs" />
     <Compile Include="SystemUtils.cs" />
     <Compile Include="Dataset.cs" />
