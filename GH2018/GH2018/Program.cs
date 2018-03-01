@@ -14,6 +14,7 @@ namespace GH2018
 
             var inputs = new List<string>()
             {
+                "input\\a_example.in",
                 "input\\b_should_be_easy.in",
                 "input\\c_no_hurry.in",
                 "input\\d_metropolis.in",
@@ -34,7 +35,7 @@ namespace GH2018
                 {
                     foreach (Car car in dataset.Cars)
                     {
-                        if (car.TakenRides.Count == 0) continue;
+                        if (car.TakenRides.Count == 0) sw.Write("0\n");
 
                         sw.Write(car.TakenRides.Count + " ");
 
