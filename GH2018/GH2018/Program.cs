@@ -11,15 +11,46 @@ namespace GH2018
     {
         static void Main(string[] args)
         {
-            var input = File.ReadAllLines("input\\a_example.in");
 
-            var dataset = Parser.Parse(input);
+            var inputs = new List<string>()
+            {
+                "input\\b_should_be_easy.in",
+                "input\\c_no_hurry.in",
+                "input\\d_metropolis.in",
+                "input\\e_high_bonus.in",
+            };
 
-            var solver = new Solver(dataset);
+            foreach (var inputItem in inputs)
+            {
+                var input = File.ReadAllLines(inputItem);
 
-            solver.SendVehicles();
+                var dataset = Parser.Parse(input);
 
+                var solver = new Solver(dataset);
 
+                solver.SendVehicles();
+
+                using (StreamWriter sw = File.CreateText(inputItem + ".out"))
+                {
+                    foreach (Car car in dataset.Cars)
+                    {
+                        if (car.TakenRides.Count == 0) continue;
+
+                        sw.Write(car.Id + " ");
+
+                        for (int i = 0; i < car.TakenRides.Count; i++)
+                        {
+                            if (i == car.TakenRides.Count - 1)
+                                sw.Write(car.TakenRides[i].Id);
+                            else
+                                sw.Write(car.TakenRides[i].Id + " ");
+                        }
+
+                        sw.Write('\n');
+                    }
+                }
+
+            }
         }
     }
 }
