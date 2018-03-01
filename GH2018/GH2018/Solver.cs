@@ -30,10 +30,14 @@ namespace GH2018
                 {
                     sortedOptimalRides = FillListOfOptimalRidesWithScore(car).OrderBy(or => or.Score).ToList();
 
-                    if(sortedOptimalRides.Where(i => i.Score == -1).ToList().Count == sortedOptimalRides.Count) break;
+                    if(sortedOptimalRides.Where(i => i.Score == -1).ToList().Count == sortedOptimalRides.Count)
+                        break;
                 }
 
-                if (CurrentStep > DataSet.StepsLimit) return;
+                if (CurrentStep > DataSet.StepsLimit)
+                {
+                    CurrentStep = 0;
+                }
             }
         }
 
@@ -43,22 +47,42 @@ namespace GH2018
             {
                 if (optimalRide.Score == -1) continue;
 
-                if (!AssignRideToCar(optimalRide.Ride, car)) return false;
+                var state = AssignRideToCar(optimalRide.Ride, car);
+
+                if (state)
+                {
+                    return true;
+                }
+                else return false;
             }
-            return true;
+            return false;
+
         }
 
         public bool AssignRideToCar(Ride optimalRide, Car car)
         {
             var steps = FindDistanceFromCarToRideStart(car, optimalRide) + FindDistanceFromStartToFinish(optimalRide);
 
-            car.CarStepCount += steps;
+            if (optimalRide.EarliestStart - car.CarStepCount + FindDistanceFromCarToRideStart(car, optimalRide) > 0)
+            {
+                var qwe = optimalRide.EarliestStart - car.CarStepCount +
+                          FindDistanceFromCarToRideStart(car, optimalRide);
+                car.CarStepCount += steps + qwe;
+                CurrentStep += steps + qwe;
+            }
+            else
+            {
+                car.CarStepCount += steps;
+                CurrentStep += steps;
+            }
 
-            CurrentStep += steps;
 
             if (CurrentStep > DataSet.StepsLimit) return false;
 
             car.TakenRides.Add(optimalRide);
+
+            car.CarRow = optimalRide.FinishRow;
+            car.CarColumn = optimalRide.FinishColumn;
 
             DataSet.Rides.Remove(optimalRide);
 

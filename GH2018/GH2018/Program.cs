@@ -36,7 +36,7 @@ namespace GH2018
                     {
                         if (car.TakenRides.Count == 0) continue;
 
-                        sw.Write(car.Id + " ");
+                        sw.Write(car.TakenRides.Count + " ");
 
                         for (int i = 0; i < car.TakenRides.Count; i++)
                         {
