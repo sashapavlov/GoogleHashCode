@@ -32,6 +32,22 @@ namespace RouterPlacement
         public void Solve()
         {
             DrawMatrix(_dataSet);
+            var graph = AddMatrixToGraph();
+
+
+            var shortest = new BreadthFirstPaths<Cell>(graph, _dataSet.Matrix[3,8]);
+            var path = shortest.pathTo(_dataSet.Matrix[3, 20]);
+
+            foreach (var cell in path)
+            {
+                _dataSet.Matrix[cell.Row, cell.Column] = new Cell(cell.Row, cell.Column, CellType.Backbone);
+
+                Console.SetCursorPosition(cell.Column, cell.Row);
+                Console.Write("b");
+            }
+
+            /*
+            DrawMatrix(_dataSet);
 
             CurrentAcceptableRouterCoverage = FindBestRouterCoverage();
 
@@ -43,14 +59,36 @@ namespace RouterPlacement
 
                 CurrentAcceptableRouterCoverage--;
 	        }
+            */
         }
 
         private void ConnectRouters()
         {
             var graph = AddMatrixToGraph();
 
-            var func = graph.ShortestPathFunction(Routers.First());
-            var path = func(Routers[8]);
+            /*
+            for (int i = 0; i < Routers.Count-1; i++)
+            {
+                var shortest = new BreadthFirstPaths<Cell>(graph, Routers[i]);
+                var path = shortest.pathTo(Routers[i+1]);
+
+                //var path = ShortestPathFunction(graph, Routers.First())(Routers[9]);
+
+                foreach (var cell in path)
+                {
+                    _dataSet.Matrix[cell.Row, cell.Column] = new Cell(cell.Row, cell.Column, CellType.Backbone);
+
+                    Console.SetCursorPosition(cell.Column, cell.Row);
+                    Console.Write("b");
+                }
+            }
+            */
+
+            /*
+            var shortest = new BreadthFirstPaths<Cell>(graph, Routers.First());
+            var path = shortest.pathTo(Routers[9]);
+
+            //var path = ShortestPathFunction(graph, Routers.First())(Routers[9]);
 
             foreach (var cell in path)
             {
@@ -59,8 +97,66 @@ namespace RouterPlacement
                 Console.SetCursorPosition(cell.Column, cell.Row);
                 Console.Write("b");
             }
+            */
+            /*
+             * var graph = AddMatrixToGraph();
+
+            for (int i = 0; i < Routers.Count; i++)
+            {
+                var shortest = new BreadthFirstPaths<Cell>(graph, Routers[i]);
+                var path = shortest.pathTo(Routers[i+1]);
+
+                foreach (var cell in path)
+                {
+                    _dataSet.Matrix[cell.Row, cell.Column] = new Cell(cell.Row, cell.Column, CellType.Backbone);
+
+                    Console.SetCursorPosition(cell.Column, cell.Row);
+                    Console.Write("b");
+                }
+            }
+            */
         }
 
+        /*
+        public Func<T, IEnumerable<T>> ShortestPathFunction<T>(Graph<T> graph, T start)
+        {
+            var previous = new Dictionary<T, T>();
+
+            var queue = new Queue<T>();
+            queue.Enqueue(start);
+
+            while (queue.Count > 0)
+            {
+                var vertex = queue.Dequeue();
+                foreach (var neighbor in graph.AdjacencyList[vertex])
+                {
+                    if (previous.ContainsKey(neighbor))
+                        continue;
+
+                    previous[neighbor] = vertex;
+                    queue.Enqueue(neighbor);
+                }
+            }
+
+            Func<T, IEnumerable<T>> shortestPath = v => {
+                var path = new List<T> { };
+
+                var current = v;
+                while (!current.Equals(start))
+                {
+                    path.Add(current);
+                    current = previous[current];
+                };
+
+                path.Add(start);
+                path.Reverse();
+
+                return path;
+            };
+
+            return shortestPath;
+        }
+        */
         private Graph<Cell> AddMatrixToGraph()
         {
             var graph = new Graph<Cell>();
@@ -70,15 +166,43 @@ namespace RouterPlacement
                 for (var j = 0; j < _dataSet.Matrix.GetLongLength(1); j++)
                 {
                     graph.AddVertex(_dataSet.Matrix[i,j]);
-                
-                    if(i - 1 >= 0)
-                        graph.AddEdge(Tuple.Create(_dataSet.Matrix[i, j], _dataSet.Matrix[i - 1, j]));
-                    if(i + 1 < _dataSet.RowCount)
-                        graph.AddEdge(Tuple.Create(_dataSet.Matrix[i, j], _dataSet.Matrix[i+1, j]));
-                    if(j - 1 >= 0)
-                        graph.AddEdge(Tuple.Create(_dataSet.Matrix[i, j], _dataSet.Matrix[i, j - 1]));
+
+                    if (i - 1 >= 0)
+                    {
+                        var cell = _dataSet.Matrix[i - 1, j];
+                        graph.AddEdge(_dataSet.Matrix[i, j], cell);
+                    }
+
+                    if (i + 1 < _dataSet.RowCount)
+                    {
+                        graph.AddEdge(_dataSet.Matrix[i, j], _dataSet.Matrix[i + 1, j]);
+                    }
+
+                    if (j - 1 >= 0)
+                    {
+                        graph.AddEdge(_dataSet.Matrix[i, j], _dataSet.Matrix[i, j - 1]);
+                    }
+
                     if (j + 1 < _dataSet.ColumnCount)
-                        graph.AddEdge(Tuple.Create(_dataSet.Matrix[i, j], _dataSet.Matrix[i, j+1]));
+                    {
+                        graph.AddEdge(_dataSet.Matrix[i, j], _dataSet.Matrix[i, j + 1]);
+                    }
+                    if (i + 1 < _dataSet.RowCount && j + 1 < _dataSet.ColumnCount)
+                    {
+                        graph.AddEdge(_dataSet.Matrix[i, j], _dataSet.Matrix[i + 1, j + 1]);
+                    }
+                    if (i - 1 >= 0 && j - 1 >= 0)
+                    {
+                        graph.AddEdge(_dataSet.Matrix[i, j], _dataSet.Matrix[i - 1, j - 1]);
+                    }
+                    if (i - 1 >= 0 && j + 1 < _dataSet.ColumnCount)
+                    {
+                        graph.AddEdge(_dataSet.Matrix[i, j], _dataSet.Matrix[i - 1, j + 1]);
+                    }
+                    if (i + 1 < _dataSet.RowCount && j - 1 >= 0)
+                    {
+                        graph.AddEdge(_dataSet.Matrix[i, j], _dataSet.Matrix[i + 1, j - 1]);
+                    }
                 }
             }
 
